@@ -1,4 +1,4 @@
-# VRM (Programming for Robots and Manipulators) : Template for Student Projects
+<!-- # VRM (Programming for Robots and Manipulators) : Template for Student Projects
 GitHub repository template for student projects in the university course VRM (Programming for Robots and Manipulators).
 
 ## Requirements:
@@ -45,16 +45,16 @@ Link: [Project 1](https://github.com/rparak/VRM_GitHub_Template_Student/tree/mai
 
 <p align="center">
 <img src=https://github.com/rparak/VRM_GitHub_Template_Student/blob/main/images/project_2b.png width="700" height="375">
-</p>
+</p> -->
 
-## Activity:
+<!-- ## Activity:
 
 Descriptions and solutions of small projects implemented during the semester.
 
-Link: [Activity](https://github.com/rparak/VRM_GitHub_Template_Student/tree/main/Activity)
+Link: [Activity](https://github.com/rparak/VRM_GitHub_Template_Student/tree/main/Activity) -->
 
-## Contact Info:
+<!-- ## Contact Info:
 Roman.Parak@outlook.com
 
 ## License
-[MIT](https://choosealicense.com/licenses/mit/)
+[MIT](https://choosealicense.com/licenses/mit/) -->
