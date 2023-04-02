@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Metadata Version="1">
+  <Id>04c68e8e1d224d168455279a93f70895</Id>
+  <Name>Recording-18</Name>
+  <EventCount>1</EventCount>
+  <StartedUtc>2023-03-24T12:51:41.9252161Z</StartedUtc>
+  <EndedUtc>2023-03-24T12:52:11.2153451Z</EndedUtc>
+  <TotalTime>0</TotalTime>
+  <Signals />
+  <Sources>
+    <Source type="Station" id="{bd13d806-145d-4a3a-b469-8d90b9ca3c36}" displayName="Solution_Yumi_Template" />
+  </Sources>
+</Metadata>

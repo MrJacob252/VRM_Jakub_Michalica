@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Metadata Version="1">
+  <Id>c9bfa756fbd84f5fa5bd8eebbfe5f33d</Id>
+  <Name>Recording-4</Name>
+  <EventCount>1</EventCount>
+  <StartedUtc>2023-04-01T19:39:55.2814883Z</StartedUtc>
+  <EndedUtc>2023-04-01T19:39:56.0475992Z</EndedUtc>
+  <TotalTime>0</TotalTime>
+  <Signals />
+  <Sources>
+    <Source type="Station" id="{97e7e5d5-e31f-45fe-a2c8-90c3a8e959c2}" displayName="VRM_RS_Project_Template" />
+  </Sources>
+</Metadata>
