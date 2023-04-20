@@ -190,7 +190,7 @@ class Control(object):
 
         # After completing the calculation, reset the transformation matrix.
         self.__Tn_theta = np.array(np.identity(4))
-
+    
     def inverse_kinematics(self, p, theta3_deg, cfg):
         """
         Description:
