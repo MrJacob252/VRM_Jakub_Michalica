@@ -18,12 +18,12 @@ TODO
 
 -- Creating outline is slow as hell
 """
-
 import customtkinter as ctk
 import matplotlib.pyplot as plt
 from tkinter import filedialog
 from PIL import Image
 import numpy as np
+
 
 class Storage:
     """
@@ -33,8 +33,11 @@ class Storage:
         self.img = None
         self.img_arr = None
         self.img_path = None
+        self.img_size = None
+        self.img_mode = None
         self.img_colors = None
         self.outline = None
+
 
 class App(ctk.CTk):
     """
@@ -100,6 +103,20 @@ class App(ctk.CTk):
         self.load_butt = ctk.CTkButton(self.load_fr, text="Browse file", width=120, command=lambda: self.upload_img())
         self.load_butt.pack(**__5_padding)
         
+        self.img_properties_tit = ctk.CTkLabel(self.load_fr, text="Image Properties:", font=__my_font_1)
+        self.img_properties_tit.pack(**__base_padding)
+        
+        self.img_size_tit = ctk.CTkLabel(self.load_fr, text="Image size:", font=__my_font_2)
+        self.img_size_tit.pack()
+        
+        self.img_size_lab = ctk.CTkLabel(self.load_fr, text="None x None")
+        self.img_size_lab.pack()
+        
+        self.img_mode_tit = ctk.CTkLabel(self.load_fr, text="Image mode:", font=__my_font_2)
+        self.img_mode_tit.pack()
+        
+        self.img_mode_lab = ctk.CTkLabel(self.load_fr, text="None")
+        self.img_mode_lab.pack()
         
         # # Control Frame
         self.extract_butt = ctk.CTkButton(self.control_fr, text='Extract colors', width=120, command=lambda: self.create_color_widgets())
@@ -136,8 +153,16 @@ class App(ctk.CTk):
         # Change the 'load_path' label to the file path
         self.load_path_name_lab.configure(text=file)
         
-        # Save image to the GUI
+        # Save image and its properties to the storage
         self.storage.img = Image.open(file)
+        self.storage.img_mode = self.storage.img.mode
+        self.storage.img_size = self.storage.img.size
+        
+        # Change the 'img_size' label to the image size
+        self.img_size_lab.configure(text=f'{self.storage.img_size[0]} x {self.storage.img_size[1]}')
+        
+        # Change the 'img_mode' label to the image mode
+        self.img_mode_lab.configure(text=self.storage.img_mode)
         
     def extract_colors(self):
         '''
@@ -204,8 +229,6 @@ class App(ctk.CTk):
         
         plt.show()
         
-    
-    
     def __set_appearance_and_theme(self, appearance_mode='system', theme='blue'):
         '''
         Sets appearance mode and theme of the GUI. 
