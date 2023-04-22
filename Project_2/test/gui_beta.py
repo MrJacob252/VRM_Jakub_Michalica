@@ -16,7 +16,7 @@ TODO
 -> Choose a color from a color frame widget                 - DONE
 -> Display scatter plot of the color                        - DONE
 
--- The plotting axis transformation only work for the 128x128 image
+-- Creating outline is slow as hell
 """
 
 import customtkinter as ctk
@@ -34,6 +34,7 @@ class Storage:
         self.img_arr = None
         self.img_path = None
         self.img_colors = None
+        self.outline = None
 
 class App(ctk.CTk):
     """
@@ -79,9 +80,11 @@ class App(ctk.CTk):
         self.control_fr = ctk.CTkFrame(self)
         self.control_fr.grid(row=1, column=0, sticky='nsew', **__5_padding)
         
+        self.color_fr_columns = 4
+        self.color_fr_rows = 20
         self.color_fr = ctk.CTkFrame(self)
         self.color_fr.grid(row=0, column=1, rowspan=2, sticky='nsew', **__5_padding)
-        self.__set_rows_and_columns(rows=12, columns=3, frame=self.color_fr)
+        self.__set_rows_and_columns(rows=self.color_fr_rows, columns=self.color_fr_columns, frame=self.color_fr)
         
         
         # # Load Frame
@@ -105,8 +108,11 @@ class App(ctk.CTk):
         self.show_area_butt = ctk.CTkButton(self.control_fr, text='Show color area', width=120, command=lambda: self.plot_color_area())
         self.show_area_butt.pack(**__5_padding)
         
-        self.save_to_txt_but = ctk.CTkButton(self.control_fr, text='Save to txt', width=120, command=lambda: self.save_cords_to_txt())
-        self.save_to_txt_but.pack(**__5_padding)
+        self.save_to_txt_butt = ctk.CTkButton(self.control_fr, text='Save to txt', width=120, command=lambda: self.save_cords_to_txt())
+        self.save_to_txt_butt.pack(**__5_padding)
+        
+        self.create_outline_butt = ctk.CTkButton(self.control_fr, text='Create outline', width=120, command=lambda: self.create_outline())
+        self.create_outline_butt.pack(**__5_padding)
         
         
         # # Color Frame
@@ -147,7 +153,58 @@ class App(ctk.CTk):
         self.storage.img_arr = np.asarray(self.storage.img)
         
         # Get the unique colors
-        self.storage.img_colors = np.unique(self.storage.img_arr.copy().reshape(-1, self.storage.img_arr.shape[2]), axis=0)
+        self.storage.img_colors = np.unique(self.storage.img_arr.reshape(-1, self.storage.img_arr.shape[2]), axis=0)
+        # self.storage.img_colors = np.unique(self.storage.img_arr, axis=0)
+        # print(self.storage.img_colors)
+    
+    def create_outline(self):
+        
+        # Handle if no colors are present
+        if len(self.color_widgets) == 0:
+            return
+        
+        # Get the color from radio button
+        color = self.color_var.get()
+        color_arr = self.storage.img_colors[color]
+        
+        # Generate coordinates of the color
+        active_cords = self.__generate_color_cord(color_arr)
+        # print(active_cords)
+        
+        delete_cords = []
+        
+        for i in active_cords:
+            current_cord_x_p = [i[0] + 1, i[1]]
+            current_cord_x_m = [i[0] - 1, i[1]]
+            current_cord_y_p = [i[0], i[1] + 1]
+            current_cord_y_m = [i[0], i[1] - 1]
+            
+            # if current_cord_x_p in active_cords and current_cord_x_m in active_cords and current_cord_y_p in active_cords and current_cord_y_m in active_cords:
+            #     delete_cords.append(i)
+            if current_cord_x_p in active_cords and current_cord_x_m in active_cords and current_cord_y_p in active_cords and current_cord_y_m in active_cords:
+                delete_cords.append(i)
+        
+        outline_cords = []
+          
+        for j in active_cords:
+            if j not in delete_cords:
+                outline_cords.append(j)
+        
+        # Creates subplot
+        fig, ax = plt.subplots()
+        
+        # Configure subplot axes
+        ax.set_xlim(0, len(self.storage.img_arr) - 1)
+        ax.set_ylim(0, len(self.storage.img_arr[0]) - 1)
+        ax.set_aspect('equal')
+        
+        # Plot the coordinates of the color as a scatter plot
+        plot = ax.scatter([i[0] for i in outline_cords], 
+                          [i[1] for i in outline_cords])
+        
+        plt.show()
+        
+    
     
     def __set_appearance_and_theme(self, appearance_mode='system', theme='blue'):
         '''
@@ -217,7 +274,7 @@ class App(ctk.CTk):
             
             # Increment rows and columns
             column += 1
-            if column == 3:
+            if column == self.color_fr_columns:
                 row += 1
                 column = 0
 
@@ -241,8 +298,8 @@ class App(ctk.CTk):
         fig, ax = plt.subplots()
         
         # Configure subplot axes
-        ax.set_xlim(0, len(self.storage.img_arr))
-        ax.set_ylim(0, len(self.storage.img_arr[0]))
+        ax.set_xlim(0, len(self.storage.img_arr) - 1)
+        ax.set_ylim(0, len(self.storage.img_arr[0]) - 1)
         ax.set_aspect('equal')
         
         # Plot the coordinates of the color as a scatter plot
