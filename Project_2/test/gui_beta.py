@@ -141,7 +141,7 @@ class App(ctk.CTk):
         Saves the image path to the storage.
         """
         
-        file_types = [('PNG files', '*.png'), ('All files', '*')]
+        file_types = [('PNG files', '*.png'), ('JPG files', '*.jpg'), ('All files', '*')]
         file = filedialog.askopenfilename(title='Open a file', filetypes=file_types)
         
         self.storage.img_path = file
