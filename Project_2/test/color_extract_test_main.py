@@ -1,4 +1,4 @@
-import gui_beta as gui
+import gui_beta_1 as gui
 
 def main():
     test = gui.App("Test GUI")

@@ -128,8 +128,11 @@ class App(ctk.CTk):
         self.save_to_txt_butt = ctk.CTkButton(self.control_fr, text='Save to txt', width=120, command=lambda: self.save_cords_to_txt())
         self.save_to_txt_butt.pack(**__5_padding)
         
-        self.create_outline_butt = ctk.CTkButton(self.control_fr, text='Create outline', width=120, command=lambda: self.create_outline())
+        self.create_outline_butt = ctk.CTkButton(self.control_fr, text='Create outline', width=120, command=lambda: self.plot_outline())
         self.create_outline_butt.pack(**__5_padding)
+        
+        self.save_outline_txt_butt = ctk.CTkButton(self.control_fr, text='Save outline to txt', width=120, command=lambda: self.save_outline_to_txt())
+        self.save_outline_txt_butt.pack(**__5_padding)
         
         
         # # Color Frame
@@ -194,7 +197,6 @@ class App(ctk.CTk):
         
         # Generate coordinates of the color
         active_cords = self.__generate_color_cord(color_arr)
-        # print(active_cords)
         
         delete_cords = []
         
@@ -204,8 +206,6 @@ class App(ctk.CTk):
             current_cord_y_p = [i[0], i[1] + 1]
             current_cord_y_m = [i[0], i[1] - 1]
             
-            # if current_cord_x_p in active_cords and current_cord_x_m in active_cords and current_cord_y_p in active_cords and current_cord_y_m in active_cords:
-            #     delete_cords.append(i)
             if current_cord_x_p in active_cords and current_cord_x_m in active_cords and current_cord_y_p in active_cords and current_cord_y_m in active_cords:
                 delete_cords.append(i)
         
@@ -214,6 +214,14 @@ class App(ctk.CTk):
         for j in active_cords:
             if j not in delete_cords:
                 outline_cords.append(j)
+                
+        self.storage.outline = outline_cords
+        
+        return outline_cords
+        
+    def plot_outline(self):
+        
+        outline_cords = self.create_outline()
         
         # Creates subplot
         fig, ax = plt.subplots()
@@ -228,7 +236,7 @@ class App(ctk.CTk):
                           [i[1] for i in outline_cords])
         
         plt.show()
-        
+       
     def __set_appearance_and_theme(self, appearance_mode='system', theme='blue'):
         '''
         Sets appearance mode and theme of the GUI. 
@@ -376,6 +384,27 @@ class App(ctk.CTk):
                 else:
                     f.write(f'{cord[0]} {cord[1]}')  
 
+    def save_outline_to_txt(self):
+        '''
+        Saves list of coordinates of the chosen color to a txt file.
+        '''
+        
+        # Handle if no colors are present
+        if len(self.color_widgets) == 0:
+            return
+        
+        outline_cords = self.create_outline()
+        
+        # Write the coordinates to a txt file
+        with open('outline_cords.txt', 'w') as f:
+            for cord in outline_cords:
+                
+                if cord != outline_cords[-1]:
+                    f.write(f'{cord[0]} {cord[1]}\n')
+                # Last coordinate line does not have a new line character
+                else:
+                    f.write(f'{cord[0]} {cord[1]}')  
+        
 
 class ColorWidget(ctk.CTkFrame):
     '''
