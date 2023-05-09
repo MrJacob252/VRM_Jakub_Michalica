@@ -1,5 +1,6 @@
 """
-TODO
+HOWTO:
+
 
 """
 from typing import Optional, Tuple, Union
@@ -19,13 +20,16 @@ class Storage:
         self.img_shape = [None, None, None] # [height, width, channels]
         self.img_gray = None
         self.img_only_black = None
-        self.img_only_gray = None
+        self.img_only_grey = None
         self.img_only_white = None
+        
+        self.outline_black = None
+        self.outline_grey = None
         
         self.BLACK = [0, 63]
         # self.GRAY = (self.BLACK[1] + 1, 152)
-        self.GRAY = [self.BLACK[0], 152]
-        self.WHITE = [self.GRAY[1] + 1, 255]
+        self.GREY = [self.BLACK[0], 152]
+        self.WHITE = [self.GREY[1] + 1, 255]
 
 class App(ctk.CTk):
     """
@@ -46,7 +50,7 @@ class App(ctk.CTk):
         self.__set_rows_and_columns(2, 2)
         
         self.__width_min = 1000
-        self.__height_min = 600
+        self.__height_min = 1000
         
         self.geometry(f'{self.__width_min}x{self.__height_min}')
         self.minsize(self.__width_min, self.__height_min)
@@ -110,25 +114,41 @@ class App(ctk.CTk):
         self.show_area_butt = ctk.CTkButton(self.control_fr, text='Resize', width=120, command=lambda: self.resize_image(width=480))
         self.show_area_butt.pack(**__5_padding)
         
-        self.black_limits = ColorLimitEntry(self.control_fr, name='Black')
+        self.black_limits = ColorLimitEntry(self.control_fr, name='Black', default_values=self.storage.BLACK)
         self.black_limits.pack(**__base_padding)
         self.color_entry['black'] = self.black_limits
         
         self.gen_black_area_butt = ctk.CTkButton(self.control_fr, text='Generate black', width=120, command=lambda: self.show_color(self.storage.BLACK))
         self.gen_black_area_butt.pack(**__5_padding)
         
-        self.gen_gray_area_butt = ctk.CTkButton(self.control_fr, text='Generate grey', width=120, command=lambda: self.show_color(self.storage.GRAY))
+        self.black_limits = ColorLimitEntry(self.control_fr, name='Grey', default_values=self.storage.GREY)
+        self.black_limits.pack(**__base_padding)
+        self.color_entry['grey'] = self.black_limits
+        
+        self.gen_gray_area_butt = ctk.CTkButton(self.control_fr, text='Generate grey', width=120, command=lambda: self.show_color(self.storage.GREY))
         self.gen_gray_area_butt.pack(**__5_padding)
+        
+        self.black_limits = ColorLimitEntry(self.control_fr, name='White', default_values=self.storage.WHITE)
+        self.black_limits.pack(**__base_padding)
+        self.color_entry['white'] = self.black_limits
         
         self.gen_white_area_butt = ctk.CTkButton(self.control_fr, text='Generate white', width=120, command=lambda: self.show_color(self.storage.WHITE))
         self.gen_white_area_butt.pack(**__5_padding)
         
-        self.save_outline_txt_butt = ctk.CTkButton(self.control_fr, text='Save outline to txt', width=120)
-        self.save_outline_txt_butt.pack(**__5_padding)
+        self.display_blk_outline_butt = ctk.CTkButton(self.control_fr, text='Show black outline', width=120, command=lambda: self.show_black_outline())
+        self.display_blk_outline_butt.pack(**__5_padding)
         
+        
+        self.display_grey_outline_butt = ctk.CTkButton(self.control_fr, text='Show grey outline', width=120, command=lambda: self.show_grey_outline())
+        self.display_grey_outline_butt.pack(**__5_padding)
         
         # # Color Frame
-    
+        self.how_to_tit = ctk.CTkLabel(self.color_fr, text='How to:', font=__my_font_1)
+        self.how_to_tit.pack(**__base_padding)
+        
+        import how_to_text
+        self.how_to_lab = ctk.CTkLabel(self.color_fr, text=how_to_text.text)
+        self.how_to_lab.pack(**__base_padding)
     
     def __set_appearance_and_theme(self, appearance_mode='system', theme='blue'):
         '''
@@ -241,6 +261,9 @@ class App(ctk.CTk):
         
     def resize_image(self, width=None, height=None):
         
+        if self.storage.img_path == None:
+            return
+        
         self.storage.img_gray = self.__image_resize(self.storage.img_gray, width=width, height=height)
           
     
@@ -257,12 +280,12 @@ class App(ctk.CTk):
                 tmp_max = self.color_entry['black'].max_entry.get()
                 self.storage.BLACK[1] = int(tmp_max)
             
-            case self.storage.GRAY:
-                tmp_min = self.color_entry['gray'].min_entry.get()
-                self.storage.GRAY[0] = int(tmp_min)
+            case self.storage.GREY:
+                tmp_min = self.color_entry['grey'].min_entry.get()
+                self.storage.GREY[0] = int(tmp_min)
                 
-                tmp_max = self.color_entry['gray'].max_entry.get()
-                self.storage.GRAY[1] = int(tmp_max)
+                tmp_max = self.color_entry['grey'].max_entry.get()
+                self.storage.GREY[1] = int(tmp_max)
             
             case self.storage.WHITE:
                 tmp_min = self.color_entry['white'].min_entry.get()
@@ -297,26 +320,89 @@ class App(ctk.CTk):
                 self.storage.img_only_black = temp_img
             
                 cv2.imshow('Black only', temp_img)
+                
+                # print(temp_img)
             
-            case self.storage.GRAY:
-                self.storage.img_only_gray = temp_img
+            case self.storage.GREY:
+                self.storage.img_only_grey = temp_img
             
                 cv2.imshow('Gray only', temp_img)
 
+                # print(temp_img)
                 
             case self.storage.WHITE:
                 self.storage.img_only_white = temp_img
 
                 cv2.imshow('White only', temp_img)
 
+                # print(temp_img)
                        
             case _:
                 return
             
+    def show_black_outline(self):
+        '''
+        Shows outline of black pixels
+        '''
+        img = self.storage.img_only_black
+        
+        # Find contours
+        y_len = len(img)
+        x_len = len(img[0])
+        
+        new_img = img.copy()
+        
+        for i in range(y_len):
+            for j in range(x_len):
+                
+                if img[i][j] == 0:
+                    
+                    if j == 0 or j == x_len - 1:
+                        new_img[i][j] = 0
+    
+                    elif img[i][j-1] == 0 and img[i][j+1] == 0:
+                        new_img[i][j] = 255
+                                  
+    
+            self.storage.outline_black = new_img
+            
+            cv2.imshow('Outline black', new_img)
+                    
+    def show_grey_outline(self):
+        '''
+        Shows outline of grey pixels
+        '''
+        img = self.storage.img_only_grey
+        
+        # Find contours
+        y_len = len(img)
+        x_len = len(img[0])
+        
+        new_img = img.copy()
+        
+        for i in range(y_len):
+            for j in range(x_len):
+                
+                if img[i][j] == 0:
+                    
+                    if i == 0 or i == y_len - 1:
+                        new_img[i][j] = 0
+    
+                    elif img[i-1][j] == 0 and img[i+1][j] == 0:
+                        new_img[i][j] = 255
+                                  
+    
+            self.storage.outline_grey = new_img
+            
+            cv2.imshow('Outline grey', new_img)                
+                    
+              
+            
+            
 
 class ColorLimitEntry(ctk.CTkFrame):
     def __init__(self, master: any, 
-                 name,
+                 name, default_values: list[int, int],
                  width: int = 200, height: int = 200, corner_radius: int | str | None = None, border_width: int | str | None = None, bg_color: str | Tuple[str, str] = "transparent", fg_color: str | Tuple[str, str] | None = None, border_color: str | Tuple[str, str] | None = None, background_corner_colors: Tuple[str | Tuple[str, str]] | None = None, overwrite_preferred_drawing_method: str | None = None, **kwargs):
         super().__init__(master, width, height, corner_radius, border_width, bg_color, fg_color, border_color, background_corner_colors, overwrite_preferred_drawing_method, **kwargs)
         
@@ -330,11 +416,14 @@ class ColorLimitEntry(ctk.CTkFrame):
         self.min_var = ctk.StringVar()
         self.max_var = ctk.StringVar()
 
-        self.min_entry = ctk.CTkEntry(self, placeholder_text=f'{name} min', textvariable=self.min_var)
+        self.min_entry = ctk.CTkEntry(self, textvariable=self.min_var)
         self.min_entry.grid(row=0, column=0)
+        self.min_entry.insert(0, str(default_values[0]))
         
-        self.max_entry = ctk.CTkEntry(self, placeholder_text=f'{name} max', textvariable=self.max_var)
+        self.max_entry = ctk.CTkEntry(self, textvariable=self.max_var)
         self.max_entry.grid(row=0, column=1)
+        self.max_entry.insert(0, str(default_values[1]))
+        
         
     
 if __name__ == "__main__":
