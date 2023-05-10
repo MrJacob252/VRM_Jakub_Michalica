@@ -1,0 +1,40 @@
+MODULE Module2
+    CONST robtarget Target_drawing_origin:=[[290,10,-2],[1,0,0,0],[0,0,0,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]];
+
+
+! Main procedure
+PROC main()
+
+
+! Draw grey
+MoveJ Offs(Target_drawing_origin,0,0,0),v100,fine,PencilHolder\WObj:=PAPER;
+MoveL Offs(Target_drawing_origin,0,0,0),v100,fine,PencilHolder\WObj:=PAPER;
+MoveL Offs(Target_drawing_origin,0,20,0),v100,fine,PencilHolder\WObj:=PAPER;
+MoveL Offs(Target_drawing_origin,0,30,0),v100,fine,PencilHolder\WObj:=PAPER;
+MoveL Offs(Target_drawing_origin,0,40,0),v100,fine,PencilHolder\WObj:=PAPER;
+MoveL Offs(Target_drawing_origin,-1,10,0),v100,fine,PencilHolder\WObj:=PAPER;
+MoveL Offs(Target_drawing_origin,-1,50,0),v100,fine,PencilHolder\WObj:=PAPER;
+MoveL Offs(Target_drawing_origin,-3,30,0),v100,fine,PencilHolder\WObj:=PAPER;
+MoveL Offs(Target_drawing_origin,-3,40,0),v100,fine,PencilHolder\WObj:=PAPER;
+MoveL Offs(Target_drawing_origin,-4,10,0),v100,fine,PencilHolder\WObj:=PAPER;
+MoveL Offs(Target_drawing_origin,-4,20,0),v100,fine,PencilHolder\WObj:=PAPER;
+
+
+! Draw black
+MoveJ Offs(Target_drawing_origin,0,0,0),v100,fine,PencilHolder\WObj:=PAPER;
+MoveL Offs(Target_drawing_origin,0,0,0),v100,fine,PencilHolder\WObj:=PAPER;
+MoveL Offs(Target_drawing_origin,-10,0,0),v100,fine,PencilHolder\WObj:=PAPER;
+MoveL Offs(Target_drawing_origin,-40,0,0),v100,fine,PencilHolder\WObj:=PAPER;
+MoveL Offs(Target_drawing_origin,-60,0,0),v100,fine,PencilHolder\WObj:=PAPER;
+MoveL Offs(Target_drawing_origin,-10,2,0),v100,fine,PencilHolder\WObj:=PAPER;
+MoveL Offs(Target_drawing_origin,-40,2,0),v100,fine,PencilHolder\WObj:=PAPER;
+MoveL Offs(Target_drawing_origin,-10,4,0),v100,fine,PencilHolder\WObj:=PAPER;
+MoveL Offs(Target_drawing_origin,-40,4,0),v100,fine,PencilHolder\WObj:=PAPER;
+MoveL Offs(Target_drawing_origin,-30,6,0),v100,fine,PencilHolder\WObj:=PAPER;
+MoveL Offs(Target_drawing_origin,-50,6,0),v100,fine,PencilHolder\WObj:=PAPER;
+
+
+ENDPROC
+
+
+ENDMODULE

@@ -1,0 +1,105 @@
+MODULE Module1
+    CONST robtarget Target_10:=[[30,100,0],[1,0,0,0],[0,0,0,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]];
+    CONST robtarget Target_20:=[[300,100,0],[1,0,0,0],[0,0,0,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]];
+    CONST robtarget Target_30:=[[300,200,0],[1,0,0,0],[0,0,0,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]];
+    CONST robtarget Target_40:=[[200,200,0],[1,0,0,0],[0,0,0,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]];
+    CONST robtarget Target_50:=[[200,100,0],[1,0,0,0],[0,0,0,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]];
+    CONST robtarget Target_60:=[[30,200,0],[1,0,0,0],[0,0,0,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]];
+    CONST robtarget Target_drawing_origin:=[[290,10,-2],[1,0,0,0],[0,0,0,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]];
+!***********************************************************
+    !
+    ! Module:  Module1
+    !
+    ! Description:
+    !   <Insert description here>
+    !
+    ! Author: jurdo
+    !
+    ! Version: 1.0
+    !
+    !***********************************************************
+    
+    
+    !***********************************************************
+    !
+    ! Procedure main
+    !
+    !   This is the entry point of your program
+    !
+    !***********************************************************
+    PROC main()
+        
+        !Calib_square2;
+        
+        test_proc;
+        
+    ENDPROC
+    PROC Path_10()
+        MoveL Target_10,v1000,z0,PencilHolder\WObj:=PAPER;
+        MoveL Target_20,v1000,z0,PencilHolder\WObj:=PAPER;
+        MoveL Target_30,v1000,z0,PencilHolder\WObj:=PAPER;
+        MoveL Target_40,v1000,z0,PencilHolder\WObj:=PAPER;
+        MoveL Target_50,v1000,z0,PencilHolder\WObj:=PAPER;
+        MoveL Target_60,v1000,z0,PencilHolder\WObj:=PAPER;
+    ENDPROC
+    
+    PROC Calib_square()
+        VAR num width := 380;
+        VAR num height := 260;
+        
+        MoveJ Offs(Target_drawing_origin,0,0,0),v100,fine,PencilHolder\WObj:=PAPER;
+        
+        MoveL Offs(Target_drawing_origin,0,width,0),v100,fine,PencilHolder\WObj:=PAPER;
+        
+        MoveL Offs(Target_drawing_origin,-height,width,0),v100,fine,PencilHolder\WObj:=PAPER;
+        
+        MoveL Offs(Target_drawing_origin,-height,0,0),v100,fine,PencilHolder\WObj:=PAPER;
+        
+        MoveL Offs(Target_drawing_origin,0,0,0),v100,fine,PencilHolder\WObj:=PAPER;
+    
+    ENDPROC
+    
+    PROC Calib_square2()
+    MoveJ Offs(Target_drawing_origin,0,0,0),v100,fine,PencilHolder\WObj:=PAPER;
+    MoveL Offs(Target_drawing_origin,0,380,0),v100,fine,PencilHolder\WObj:=PAPER;
+    MoveL Offs(Target_drawing_origin,-260,380,0),v100,fine,PencilHolder\WObj:=PAPER;
+    MoveL Offs(Target_drawing_origin,-260,0,0),v100,fine,PencilHolder\WObj:=PAPER;
+    MoveL Offs(Target_drawing_origin,0,0,0),v100,fine,PencilHolder\WObj:=PAPER;
+ENDPROC
+
+! Main procedure
+PROC test_proc()
+
+
+! Draw grey
+MoveJ Offs(Target_drawing_origin,0,0,0),v100,fine,PencilHolder\WObj:=PAPER;
+MoveL Offs(Target_drawing_origin,0,0,0),v100,fine,PencilHolder\WObj:=PAPER;
+MoveL Offs(Target_drawing_origin,0,20,0),v100,fine,PencilHolder\WObj:=PAPER;
+MoveL Offs(Target_drawing_origin,0,30,0),v100,fine,PencilHolder\WObj:=PAPER;
+MoveL Offs(Target_drawing_origin,0,40,0),v100,fine,PencilHolder\WObj:=PAPER;
+MoveL Offs(Target_drawing_origin,-1,10,0),v100,fine,PencilHolder\WObj:=PAPER;
+MoveL Offs(Target_drawing_origin,-1,50,0),v100,fine,PencilHolder\WObj:=PAPER;
+MoveL Offs(Target_drawing_origin,-3,30,0),v100,fine,PencilHolder\WObj:=PAPER;
+MoveL Offs(Target_drawing_origin,-3,40,0),v100,fine,PencilHolder\WObj:=PAPER;
+MoveL Offs(Target_drawing_origin,-4,10,0),v100,fine,PencilHolder\WObj:=PAPER;
+MoveL Offs(Target_drawing_origin,-4,20,0),v100,fine,PencilHolder\WObj:=PAPER;
+
+
+! Draw black
+MoveJ Offs(Target_drawing_origin,0,0,0),v100,fine,PencilHolder\WObj:=PAPER;
+MoveL Offs(Target_drawing_origin,0,0,0),v100,fine,PencilHolder\WObj:=PAPER;
+MoveL Offs(Target_drawing_origin,-10,0,0),v100,fine,PencilHolder\WObj:=PAPER;
+MoveL Offs(Target_drawing_origin,-40,0,0),v100,fine,PencilHolder\WObj:=PAPER;
+MoveL Offs(Target_drawing_origin,-60,0,0),v100,fine,PencilHolder\WObj:=PAPER;
+MoveL Offs(Target_drawing_origin,-10,2,0),v100,fine,PencilHolder\WObj:=PAPER;
+MoveL Offs(Target_drawing_origin,-40,2,0),v100,fine,PencilHolder\WObj:=PAPER;
+MoveL Offs(Target_drawing_origin,-10,4,0),v100,fine,PencilHolder\WObj:=PAPER;
+MoveL Offs(Target_drawing_origin,-40,4,0),v100,fine,PencilHolder\WObj:=PAPER;
+MoveL Offs(Target_drawing_origin,-30,6,0),v100,fine,PencilHolder\WObj:=PAPER;
+MoveL Offs(Target_drawing_origin,-50,6,0),v100,fine,PencilHolder\WObj:=PAPER;
+
+
+ENDPROC
+
+
+ENDMODULE

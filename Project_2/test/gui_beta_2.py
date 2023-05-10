@@ -1,7 +1,8 @@
 """
-HOWTO:
-
-
+TODO
+Refactor gui
+Add conversion to rapid code
+add scaling of the picture
 """
 from typing import Optional, Tuple, Union
 import customtkinter as ctk
@@ -18,7 +19,7 @@ class Storage:
         self.img = None
         self.img_path = None
         self.img_shape = [None, None, None] # [height, width, channels]
-        self.img_gray = None
+        self.img_grey = None
         self.img_only_black = None
         self.img_only_grey = None
         self.img_only_white = None
@@ -26,10 +27,14 @@ class Storage:
         self.outline_black = None
         self.outline_grey = None
         
+        self.encoded_black = None
+        self.encoded_grey = None
+        
         self.BLACK = [0, 63]
-        # self.GRAY = (self.BLACK[1] + 1, 152)
         self.GREY = [self.BLACK[0], 152]
         self.WHITE = [self.GREY[1] + 1, 255]
+        
+        self.paper_scale_img = None
 
 class App(ctk.CTk):
     """
@@ -41,6 +46,11 @@ class App(ctk.CTk):
         # Data storage
         self.storage = Storage()
         
+        # Paper size
+        self.paper_size = (380, 260) # Width x Height [mm]
+        self.mm_per_px = 1 # mm = 1 px
+        self.max_px_size = (self.paper_size[0] / self.mm_per_px, self.paper_size[1] / self.mm_per_px) # Width x Height [px]
+                
         # Color entries
         self.color_entry = {}       
         
@@ -95,7 +105,7 @@ class App(ctk.CTk):
         self.img_properties_tit = ctk.CTkLabel(self.load_fr, text="Image Properties:", font=__my_font_1)
         self.img_properties_tit.pack(**__base_padding)
         
-        self.img_size_tit = ctk.CTkLabel(self.load_fr, text="Image widhth, height:", font=__my_font_2)
+        self.img_size_tit = ctk.CTkLabel(self.load_fr, text="Image width, height:", font=__my_font_2)
         self.img_size_tit.pack()
         
         self.img_size_lab = ctk.CTkLabel(self.load_fr, text="None x None")
@@ -138,9 +148,14 @@ class App(ctk.CTk):
         self.display_blk_outline_butt = ctk.CTkButton(self.control_fr, text='Show black outline', width=120, command=lambda: self.show_black_outline())
         self.display_blk_outline_butt.pack(**__5_padding)
         
-        
         self.display_grey_outline_butt = ctk.CTkButton(self.control_fr, text='Show grey outline', width=120, command=lambda: self.show_grey_outline())
         self.display_grey_outline_butt.pack(**__5_padding)
+        
+        self.paper_scale_butt = ctk.CTkButton(self.control_fr, text='Scale to paper', width=120, command=lambda: self.scale_to_paper(self.storage.img_grey, self.paper_size, self.mm_per_px))
+        self.paper_scale_butt.pack(**__5_padding)
+        
+        self.generate_cords_butt = ctk.CTkButton(self.control_fr, text='Generate cords', width=120, command=lambda: self.generate_cords())
+        self.generate_cords_butt.pack(**__5_padding)
         
         # # Color Frame
         self.how_to_tit = ctk.CTkLabel(self.color_fr, text='How to:', font=__my_font_1)
@@ -254,9 +269,9 @@ class App(ctk.CTk):
         if self.storage.img_path == None:
             return
         
-        self.storage.img_gray = cv2.cvtColor(self.storage.img, cv2.COLOR_BGR2GRAY)
+        self.storage.img_grey = cv2.cvtColor(self.storage.img, cv2.COLOR_BGR2GRAY)
         
-        cv2.imshow('Grayscale', self.storage.img_gray)
+        cv2.imshow('Grayscale', self.storage.img_grey)
         # cv2.waitKey(0)
         
     def resize_image(self, width=None, height=None):
@@ -264,7 +279,7 @@ class App(ctk.CTk):
         if self.storage.img_path == None:
             return
         
-        self.storage.img_gray = self.__image_resize(self.storage.img_gray, width=width, height=height)
+        self.storage.img_grey = self.__image_resize(self.storage.img_grey, width=width, height=height)
           
     
     def __get_color_limits(self, COLOR):
@@ -304,7 +319,7 @@ class App(ctk.CTk):
         '''
         self.__get_color_limits(COLOR)
         
-        temp_img = self.storage.img_gray.copy()
+        temp_img = self.storage.img_grey.copy()
         
         for i in range(len(temp_img)):
             for j in range(len(temp_img[i])):
@@ -326,7 +341,7 @@ class App(ctk.CTk):
             case self.storage.GREY:
                 self.storage.img_only_grey = temp_img
             
-                cv2.imshow('Gray only', temp_img)
+                cv2.imshow('Grey only', temp_img)
 
                 # print(temp_img)
                 
@@ -395,7 +410,107 @@ class App(ctk.CTk):
             self.storage.outline_grey = new_img
             
             cv2.imshow('Outline grey', new_img)                
+    
+    def scale_to_paper(self, image: np.ndarray[np.uint8], paper_size: tuple[int, int], mm_per_px: int):
+        '''
+        Scales the image to the paper size
+        '''
+        max_px_size = (int(np.floor(paper_size[0] / mm_per_px)), int(np.floor(paper_size[1] / mm_per_px))) # Width x Height [px]
+        
+        # Find the longest side
+        w, h = image.shape[:2]
+        print(w, h)
+        
+        if w >= h:
+            image = self.__image_resize(image, height=max_px_size[1])
+        else:
+            image = self.__image_resize(image, width=max_px_size[0])
+        
+        print(image.shape) 
+        cv2.imshow('Scaled to paper', image)
+        
+        self.storage.img_grey = image
+        
+        # self.generate_black_coords()
+        # self.generate_grey_cords()
+        
+        
+    def generate_black_coords(self, outline: np.ndarray[np.uint8]):
+        '''
+        Generates coordinates of black pixels
+        '''
+        
+        h, w = outline.shape[:2]
+        
+        if h >= w:
+            cords = np.zeros((h, h), dtype=np.uint32)
+        else:
+            cords = np.zeros((w, w), dtype=np.uint32)
+        
+        cords_location = [0, 0]
+        
+        for i in range(h):
+            
+            for j in range(w):
+                # print('-------------------')
+                # print(h, w)
+                # print(i, j)
+                # print(cords_location)
+                if outline[i][j] == 0:
+                    cords[cords_location[0]][cords_location[1]] = j
                     
+                    cords_location[1] += 1
+
+            cords_location[0] += 1
+            cords_location[1] = 0
+        
+        cords = cords.T
+        cords = cords[~np.all(cords == 0, axis=1)]
+        cords = cords.T
+        
+        self.storage.encoded_black = cords
+        
+        print(cords)
+        
+    def generate_grey_cords(self, outline: np.ndarray[np.uint8]):
+        '''
+        Generates coordinates of grey pixels
+        '''
+        
+        outline = outline.T
+        
+        h, w = outline.shape[:2]
+        
+        if h >= w:
+            cords = np.zeros((h, h), dtype=np.uint32)
+        else:
+            cords = np.zeros((w, w), dtype=np.uint32)
+        
+        cords_location = [0, 0]
+        
+        for i in range(h):
+            
+            for j in range(w):
+                
+                if outline[i][j] == 0:
+                    cords[cords_location[0]][cords_location[1]] = j
+                    
+                    cords_location[1] += 1
+                    
+            cords_location[0] += 1
+            cords_location[1] = 0
+        
+        cords = cords.T
+        cords = cords[~np.all(cords == 0, axis=1)]
+        cords = cords.T
+        
+        self.storage.encoded_black = cords
+        
+        print(cords)
+        
+    def generate_cords(self):
+        self.generate_black_coords(self.storage.outline_black)
+        self.generate_grey_cords(self.storage.outline_grey) 
               
             
             
