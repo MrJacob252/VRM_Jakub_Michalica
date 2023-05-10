@@ -4,11 +4,11 @@ class ScaraWriter():
     def __init__(self, module_name, proc_name,
                  speed: tuple[int, int],
                  tool,
+                 encoded_black,
+                 encoded_grey,
                  paper_size:tuple[int, int],
                  origin_name: str = 'Target_drawing_origin',
-                 origin_pos: tuple[int, int, int] = (290, 10, -2),
-                 encoded_black = None, 
-                 encoded_grey = None) -> None:
+                 origin_pos: tuple[int, int, int] = (290, 10, -2)) -> None:
         
         '''
         speed [Tuple[int, int]]: (speed, rapid_speed)
@@ -144,7 +144,7 @@ class ScaraWriter():
         
         return module
     
-    def write_code(self):
+    def write_rapid(self):
         '''
         Writes code to file
         '''
@@ -187,8 +187,14 @@ def main():
         [0, 0, 0, 0],
     ])
     
-    test = ScaraWriter('Module2', 'Calib_square2', (100, 100), 'PencilHolder\WObj:=PAPER', (380, 260), encoded_black=encoded_black, encoded_grey=encoded_grey)
-    test.write_code()
+    test = ScaraWriter(module_name='Module1',
+                       proc_name='Calib_square2',
+                       speed=(100, 100),
+                       tool='PencilHolder\WObj:=PAPER',
+                       paper_size=(380, 260),
+                       encoded_black=encoded_black,
+                       encoded_grey=encoded_grey)
+    test.write_rapid()
 
 if __name__ == "__main__":
     main()

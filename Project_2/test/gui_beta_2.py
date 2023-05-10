@@ -1,8 +1,9 @@
 """
 TODO
 Refactor gui
-Add conversion to rapid code
-add scaling of the picture
+
+Figure how to dynamicaly change resolution other than having 1px = 1mm
+
 """
 from typing import Optional, Tuple, Union
 import customtkinter as ctk
@@ -10,6 +11,7 @@ import matplotlib.pyplot as plt
 from tkinter import filedialog
 import numpy as np
 import cv2
+import rapid_writer
 
 class Storage:
     """
@@ -156,6 +158,9 @@ class App(ctk.CTk):
         
         self.generate_cords_butt = ctk.CTkButton(self.control_fr, text='Generate cords', width=120, command=lambda: self.generate_cords())
         self.generate_cords_butt.pack(**__5_padding)
+        
+        self.generate_rapid_butt = ctk.CTkButton(self.control_fr, text='Generate rapid', width=120, command=lambda: self.generate_rapid_code())
+        self.generate_rapid_butt.pack(**__5_padding)
         
         # # Color Frame
         self.how_to_tit = ctk.CTkLabel(self.color_fr, text='How to:', font=__my_font_1)
@@ -457,7 +462,7 @@ class App(ctk.CTk):
                 # print(i, j)
                 # print(cords_location)
                 if outline[i][j] == 0:
-                    cords[cords_location[0]][cords_location[1]] = j
+                    cords[cords_location[0]][cords_location[1]] = j + 1
                     
                     cords_location[1] += 1
 
@@ -493,7 +498,7 @@ class App(ctk.CTk):
             for j in range(w):
                 
                 if outline[i][j] == 0:
-                    cords[cords_location[0]][cords_location[1]] = j
+                    cords[cords_location[0]][cords_location[1]] = j + 1
                     
                     cords_location[1] += 1
                     
@@ -504,13 +509,38 @@ class App(ctk.CTk):
         cords = cords[~np.all(cords == 0, axis=1)]
         cords = cords.T
         
-        self.storage.encoded_black = cords
+        self.storage.encoded_grey = cords
         
         print(cords)
         
     def generate_cords(self):
         self.generate_black_coords(self.storage.outline_black)
         self.generate_grey_cords(self.storage.outline_grey) 
+        
+    def generate_rapid_code(self):
+        '''
+        Generates rapid code
+        '''
+        module = 'Module1'
+        proc = 'Calib_square2'
+        speed = (50, 100)
+        tool = 'PencilHolder\WObj:=PAPER'
+        
+        print(self.storage.encoded_black)
+        print(self.storage.encoded_grey)
+        
+        rapid = rapid_writer.ScaraWriter(
+            module_name=module,
+            proc_name=proc,
+            tool=tool,
+            speed=speed,
+            paper_size=self.paper_size,
+            encoded_black=self.storage.encoded_black,
+            encoded_grey=self.storage.encoded_grey,
+        )
+        
+        rapid.write_rapid()
+        
               
             
             
