@@ -26,3 +26,29 @@ R(X, Y, Z)
 
 ---
 
+**PARAMS FOR IMAGE**
+
+black range - ok
+
+grey range - ok
+
+spacing - ok
+
+paper size - ok
+
+**NEEDED PARAMS FOR RAPID**
+
+robot name - ok
+
+module name - ok
+
+procedure name - ok
+
+origin name - ok
+
+origin position - ok
+
+speed - ok 
+
+tool - ok
+ 

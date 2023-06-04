@@ -2,7 +2,14 @@
 TODO
 Refactor gui
 
-Figure how to dynamicaly change resolution other than having 1px = 1mm
+Figure how to dynamicaly change resolution other than having 1px = 1mm - DONE
+
+    user gives number of pixels per mm
+    user gives paper size
+    
+    change the image to the paper size divided by the number of pixels per mm
+    
+    multiply the encoded coordinates by the number of pixels per mm 
 
 """
 from typing import Optional, Tuple, Union
@@ -37,6 +44,7 @@ class Storage:
         self.WHITE = [self.GREY[1] + 1, 255]
         
         self.paper_scale_img = None
+        self.mm_per_px = 1 # mm = 1 px
 
 class App(ctk.CTk):
     """
@@ -50,7 +58,7 @@ class App(ctk.CTk):
         
         # Paper size
         self.paper_size = (380, 260) # Width x Height [mm]
-        self.mm_per_px = 1 # mm = 1 px
+        self.mm_per_px = 2 # mm = 1 px
         self.max_px_size = (self.paper_size[0] / self.mm_per_px, self.paper_size[1] / self.mm_per_px) # Width x Height [px]
                 
         # Color entries
@@ -462,7 +470,7 @@ class App(ctk.CTk):
                 # print(i, j)
                 # print(cords_location)
                 if outline[i][j] == 0:
-                    cords[cords_location[0]][cords_location[1]] = j + 1
+                    cords[cords_location[0]][cords_location[1]] = (j * self.mm_per_px) + 1
                     
                     cords_location[1] += 1
 
@@ -498,7 +506,7 @@ class App(ctk.CTk):
             for j in range(w):
                 
                 if outline[i][j] == 0:
-                    cords[cords_location[0]][cords_location[1]] = j + 1
+                    cords[cords_location[0]][cords_location[1]] = (j * self.mm_per_px) + 1
                     
                     cords_location[1] += 1
                     
