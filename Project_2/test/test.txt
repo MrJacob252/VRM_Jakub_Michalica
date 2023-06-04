@@ -1,4 +1,0 @@
-Hello, world!
-	This is a tab.
-
-This is a new line.

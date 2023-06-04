@@ -1,0 +1,37 @@
+#
+# Generated backup file, do not edit.
+#
+# Originally at: C:\Users\jurdo\Documents\RobotStudio\Projects\Romantici\Virtual Controllers\TEMP\857db311-7ef0-4233-888a-578ac0578837\backup.483637
+# 2023-04-30  22:42:25
+#
+>>SYSTEM_ID:
+VIRTUAL_USE
+
+>>PRODUCTS_ID:
+RobotWare Version: 6.15.01.00
+
+  RobotWare Base
+  English
+  Move Pick and Place
+  Drive System IRB 120/140/260/360/910SC/1200/1400/1520/1600/1660ID IRC5 Compact
+  IRB 910SC-3/0.45
+
+>>HOME:
+All public files and directories
+
+>>SYSPAR:
+SYS.cfg
+PROC.cfg
+MMC.cfg
+EIO.cfg
+SIO.cfg
+MOC.cfg
+
+
+>>TASK1: (T_ROB1,,)
+SYSMOD\user.sys @ 
+PROGMOD\Module1.mod @ 
+PROGMOD\CalibData.mod @ 
+
+
+>>EOF:
