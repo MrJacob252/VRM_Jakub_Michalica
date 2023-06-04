@@ -21,7 +21,6 @@ class Storage:
         self.paper_size: list = [None, None]            # [height, width] [mm]
         self.max_size: list = [None, None]              # [height, width] [px]
         self.mm_per_px: int = 1 # mm = 1 px             # scale of image in mm per px
-        # self.paper_scale_img: np.ndarray = None         # image scaled to paper size
 
         self.encoded_black: np.ndarray = None           # encoded outline of black pixels
         self.encoded_grey: np.ndarray = None            # encoded outline of grey pixels
@@ -201,7 +200,7 @@ def encode_outline(outline: np.ndarray[np.uint8],
     cords = cords[~np.all(cords == 0, axis=1)]
     cords = cords.T
     
-    print(cords)
+    # print(cords)
     return cords
 
 def process_image(storage):

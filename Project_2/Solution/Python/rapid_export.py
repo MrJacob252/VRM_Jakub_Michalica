@@ -10,7 +10,8 @@ from tkinter import filedialog
 class RapidWriter:
     def __init__(self, robot_name:str, module_name:str, proc_name:str,
                  origin_name:str, origin_pos:list[int, int, int], tool:str,
-                 speed:list[int, int], encoded_black:np.ndarray, encoded_grey:np.ndarray,
+                 speed:list[int, int], encoded_black:np.ndarray, encoded_grey:np.ndarray, 
+                 mm_per_px:int
                  ) -> None:
         
         self.robot_name = robot_name
@@ -22,8 +23,9 @@ class RapidWriter:
         self.speed = speed
         self.encoded_black = encoded_black
         self.encoded_grey = encoded_grey
+        self.mm_per_px = mm_per_px
         
-        self.pen_rise = 5 # mm
+        self.pen_rise = -5 # mm
         
         self.TAB = '    '
         self.ENT = '\n'
@@ -64,6 +66,7 @@ class RapidWriter:
         h, w = encoded_black.shape
         
         pen_up = 1
+        point_count = 0
         
         for i in range(h):
             
@@ -72,13 +75,26 @@ class RapidWriter:
                 if encoded_black[i][j] == 0:
                     break
                 
-                draw_black.append(self.movel((-(encoded_black[i][j] - 1), i, self.pen_rise * pen_up), self.speed[0]))
-                # change pen up or down
+                
+                draw_black.append(self.movel((-(encoded_black[i][j] - 1), i * self.mm_per_px, self.pen_rise * pen_up), self.speed[0]))
+                draw_black.append(self.in_pos())
+                
+                if point_count == 1:
+                    draw_black.append(self.draw_on(0))
+                    draw_black.append(self.draw_off(1))
+                
                 pen_up = (pen_up + 1)%2
-                draw_black.append(self.movel((-(encoded_black[i][j] - 1), i, self.pen_rise * pen_up), self.speed[0]))
+                draw_black.append(self.movel((-(encoded_black[i][j] - 1), i * self.mm_per_px, self.pen_rise * pen_up), self.speed[0]))
+                draw_black.append(self.in_pos())
                 
+                if point_count == 0:
+                    draw_black.append(self.draw_on(1))
+                    draw_black.append(self.draw_off(0))
                 
-        draw_black = self.ENT.join(draw_black)
+                point_count = (point_count + 1)%2
+                
+        draw_black.append(self.draw_off(1))       
+        draw_black = self.ENT.join(draw_black) 
         
         return draw_black
         
@@ -96,6 +112,7 @@ class RapidWriter:
         
         # is the pen up or down
         pen_up = 1
+        point_count = 0
         
         for i in range(h):
             
@@ -104,11 +121,24 @@ class RapidWriter:
                 if encoded_grey[i][j] == 0:
                     break
                 
-                draw_grey.append(self.movel((-i, (encoded_grey[i][j] - 1), self.pen_rise * pen_up), self.speed[0]))
+                draw_grey.append(self.movel((-i * self.mm_per_px, (encoded_grey[i][j] - 1), self.pen_rise * pen_up), self.speed[0]))
+                draw_grey.append(self.in_pos())
+                
+                if point_count == 1:
+                    draw_grey.append(self.draw_on(0))
+                    draw_grey.append(self.draw_off(1))
+                
                 pen_up = (pen_up + 1)%2
-                draw_grey.append(self.movel((-i, (encoded_grey[i][j] - 1), self.pen_rise * pen_up), self.speed[0]))
+                draw_grey.append(self.movel((-i * self.mm_per_px, (encoded_grey[i][j] - 1), self.pen_rise * pen_up), self.speed[0]))
+                draw_grey.append(self.in_pos())
                 
+                if point_count == 0:
+                    draw_grey.append(self.draw_on(1))
+                    draw_grey.append(self.draw_off(0))
                 
+                point_count = (point_count + 1)%2
+                
+        draw_grey.append(self.draw_off(1))       
         draw_grey = self.ENT.join(draw_grey)   
         
         return draw_grey
@@ -124,6 +154,11 @@ class RapidWriter:
         main = [
             'PROC main()',
             self.ENT,
+            '! Clean',
+            self.clean(1),
+            self.clean(0),
+            self.draw_off(1),
+            self.draw_on(0),
             '! Draw grey',
             draw_grey,
             self.ENT,
@@ -156,6 +191,21 @@ class RapidWriter:
         module = self.ENT.join(module)
         
         return module
+    
+    def clean(self, do: int) -> str:
+        
+        return f'SetDO Do_Clean, {do};'
+    
+    def draw_off(self, do: int) -> str:
+        
+        return f'SetDO Do_Kreslit_OFF, {do};'
+    
+    def draw_on(self, do: int) -> str:
+        
+        return f'SetDO Do_Kreslit_ON, {do};'
+    
+    def in_pos(self):
+        return "WaitRob \InPos;"
     
     def write_rapid(self):
         '''

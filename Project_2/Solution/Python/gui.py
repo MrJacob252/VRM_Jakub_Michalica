@@ -309,11 +309,6 @@ class App(ctk.CTk):
                                          command=lambda: self.generate_rapid(),)
         self.save_butt.pack(**self.__base_padding)
         
-        
-        
-        
-    
-    
     
     # Private methods
     def __set_appearance_and_theme(self, appearance_mode='system', theme='blue'):
@@ -470,7 +465,8 @@ class App(ctk.CTk):
                                          tool=self.storage.tool,
                                          speed=self.storage.speed,
                                          encoded_black=self.storage.encoded_black,
-                                         encoded_grey=self.storage.encoded_grey)
+                                         encoded_grey=self.storage.encoded_grey,
+                                         mm_per_px=self.storage.mm_per_px)
         rapid.write_rapid()
                                             
         
