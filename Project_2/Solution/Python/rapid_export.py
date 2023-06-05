@@ -1,12 +1,6 @@
 import numpy as np
 from tkinter import filedialog
 
-# TODO
-# - add comments
-# add turning on and off of pen
-# add pen up and down
-# save dialod window
-
 class RapidWriter:
     def __init__(self, robot_name:str, module_name:str, proc_name:str,
                  origin_name:str, origin_pos:list[int, int, int], tool:str,
@@ -32,20 +26,20 @@ class RapidWriter:
         
         self.ORIGIN = f'CONST robtarget {origin_name}:=[[{origin_pos[0]},{origin_pos[1]},{origin_pos[2]}],[1,0,0,0],[0,0,0,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]];'
         
-    def movej(self, offs: tuple[int, int, int], speed: int) -> str:
+    def movej(self, offs: list[int, int, int], speed: int) -> str:
         '''
         Creates movej command
-        offs [Tuple[int, int, int]]: (x, y, z)
+        offs [list[int, int, int]]: (x, y, z)
         '''
             
         movej = f'MoveJ Offs({self.origin_name},{offs[0]},{offs[1]},{offs[2]}),v{speed},fine,{self.tool};'
         
         return movej
     
-    def movel(self, offs: tuple[int, int, int], speed: int) -> str:
+    def movel(self, offs: list[int, int, int], speed: int) -> str:
         '''
         Creates movel command
-        offs [Tuple[int, int, int]]: (x, y, z)
+        offs [list[int, int, int]]: (x, y, z)
         '''
         
         movel = f'MoveL Offs({self.origin_name},{offs[0]},{offs[1]},{offs[2]}),v{speed},fine,{self.tool};'
@@ -65,8 +59,10 @@ class RapidWriter:
         
         h, w = encoded_black.shape
         
+        # controlls if the pen should rise or descent
         pen_up = 1
-        point_count = 0
+        # controlls if the TCP trace should draw or not
+        should_draw = 0
         
         for i in range(h):
             
@@ -79,21 +75,26 @@ class RapidWriter:
                 draw_black.append(self.movel((-(encoded_black[i][j] - 1), i * self.mm_per_px, self.pen_rise * pen_up), self.speed[0]))
                 draw_black.append(self.in_pos())
                 
-                if point_count == 1:
+                # drawing on
+                if should_draw == 1:
                     draw_black.append(self.draw_on(0))
                     draw_black.append(self.draw_off(1))
                 
+                # update pen_up
                 pen_up = (pen_up + 1)%2
                 draw_black.append(self.movel((-(encoded_black[i][j] - 1), i * self.mm_per_px, self.pen_rise * pen_up), self.speed[0]))
                 draw_black.append(self.in_pos())
                 
-                if point_count == 0:
+                # drawing off
+                if should_draw == 0:
                     draw_black.append(self.draw_on(1))
                     draw_black.append(self.draw_off(0))
                 
-                point_count = (point_count + 1)%2
+                # update should_draw
+                should_draw = (should_draw + 1)%2
                 
-        draw_black.append(self.draw_off(1))       
+        # draw_black.append(self.draw_off(1))       
+        # join the whole procedure to one string
         draw_black = self.ENT.join(draw_black) 
         
         return draw_black
@@ -110,9 +111,10 @@ class RapidWriter:
         
         h, w = encoded_grey.shape
         
-        # is the pen up or down
+        # controlls if the pen should rise or descent
         pen_up = 1
-        point_count = 0
+        # controlls if the TCP trace should draw or not
+        should_draw = 0
         
         for i in range(h):
             
@@ -124,19 +126,24 @@ class RapidWriter:
                 draw_grey.append(self.movel((-i * self.mm_per_px, (encoded_grey[i][j] - 1), self.pen_rise * pen_up), self.speed[0]))
                 draw_grey.append(self.in_pos())
                 
-                if point_count == 1:
+                # drawing on
+                if should_draw == 1:
                     draw_grey.append(self.draw_on(0))
                     draw_grey.append(self.draw_off(1))
                 
+                # update pen_up
                 pen_up = (pen_up + 1)%2
+                
                 draw_grey.append(self.movel((-i * self.mm_per_px, (encoded_grey[i][j] - 1), self.pen_rise * pen_up), self.speed[0]))
                 draw_grey.append(self.in_pos())
                 
-                if point_count == 0:
+                # drawing off
+                if should_draw == 0:
                     draw_grey.append(self.draw_on(1))
                     draw_grey.append(self.draw_off(0))
                 
-                point_count = (point_count + 1)%2
+                # update should_draw
+                should_draw = (should_draw + 1)%2
                 
         draw_grey.append(self.draw_off(1))       
         draw_grey = self.ENT.join(draw_grey)   
@@ -154,7 +161,7 @@ class RapidWriter:
         main = [
             'PROC main()',
             self.ENT,
-            '! Clean',
+            '! Clean',              # Cleans the TCP Trace lines
             self.clean(1),
             self.clean(0),
             self.draw_off(1),
@@ -193,23 +200,33 @@ class RapidWriter:
         return module
     
     def clean(self, do: int) -> str:
-        
+        '''
+        Returns the Do_Clean DO
+        '''
         return f'SetDO Do_Clean, {do};'
     
     def draw_off(self, do: int) -> str:
-        
+        '''
+        Returns the Do_Kreslit_OFF DO
+        '''
         return f'SetDO Do_Kreslit_OFF, {do};'
     
     def draw_on(self, do: int) -> str:
-        
+        '''
+        Returns the Do_Kreslit_ON DO
+        '''
         return f'SetDO Do_Kreslit_ON, {do};'
     
     def in_pos(self):
+        '''
+        Returns wait until in position command
+        '''
         return "WaitRob \InPos;"
     
     def write_rapid(self):
         '''
-        Writes code to file
+        Create filedialog for user to choose save location
+        Write the rapid code string into a .txt file
         '''
         
         draw_black = self.draw_black_proc(self.encoded_black)

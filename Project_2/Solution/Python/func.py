@@ -4,44 +4,44 @@ import cv2
 
 class Storage:
     '''
-    Data storage class
+    Data storage class with default values for ABB SCARA 
     '''
     def __init__(self) -> None:
         self.img: np.ndarray = None
         self.img_path: str = None
-        self.img_shape: list = [None, None, None]       # [height, width, channels]
+        self.img_shape: list = [None, None, None]               # [height, width, channels]
         
-        self.img_greyscale: np.ndarray = None            # grayscale image
-        self.img_only_black: np.ndarray = None          # only black pixels
-        self.img_only_grey: np.ndarray = None           # only grey pixels
+        self.img_greyscale: np.ndarray = None                   # grayscale image
+        self.img_only_black: np.ndarray = None                  # only black pixels
+        self.img_only_grey: np.ndarray = None                   # only grey pixels
         
-        self.outline_black: np.ndarray = None           # outline of black pixels
-        self.outline_grey: np.ndarray = None            # outline of grey pixels
+        self.outline_black: np.ndarray = None                   # outline of black pixels
+        self.outline_grey: np.ndarray = None                    # outline of grey pixels
         
-        self.paper_size: list = [None, None]            # [height, width] [mm]
-        self.max_size: list = [None, None]              # [height, width] [px]
-        self.mm_per_px: int = 1 # mm = 1 px             # scale of image in mm per px
+        self.paper_size: list = [380, 260]                      # [height, width] [mm]
+        self.max_size: list = [None, None]                      # [height, width] [px]
+        self.mm_per_px: int = 3 # mm = 1 px                     # scale of image in mm per px
 
-        self.encoded_black: np.ndarray = None           # encoded outline of black pixels
-        self.encoded_grey: np.ndarray = None            # encoded outline of grey pixels
+        self.encoded_black: np.ndarray = None                   # encoded outline of black pixels
+        self.encoded_grey: np.ndarray = None                    # encoded outline of grey pixels
         
-        self.BLACK = [0, 63]                            # black color range
-        self.GREY = [self.BLACK[0], 152]                # grey color range
+        self.BLACK = [0, 63]                                    # black color range
+        self.GREY = [self.BLACK[0], 152]                        # grey color range
         
         # # Parameters for rapid writer
-        self.robot_name: str = None                     # name of robot
-        self.module_name: str = None                    # name of module
-        self.proc_name: str = None                      # name of procedure
-        self.origin_name: str = None                    # name of origin
-        self.origin_pos: list[int, int, int] = None     # position of origin
-        self.tool: str = None                           # name of tool
-        self.speed: list[int, int] = None               # speed of robot [speed, rapid_speed]
+        self.robot_name: str = 'SCARA'                          # name of robot
+        self.module_name: str = 'Module1'                       # name of module
+        self.proc_name: str = 'Draw_image'                      # name of procedure
+        self.origin_name: str = 'Target_drawing_origin'         # name of origin
+        self.origin_pos: list[int, int, int] = [290, 10, -2]    # position of origin
+        self.tool: str = 'PencilHolder\WObj:=PAPER'             # name of tool
+        self.speed: list[int, int] = [100, 100]                 # speed of robot [speed, rapid_speed]
         
-def upload_img(file_path):
+def upload_and_greyscale(file_path):
     '''
     Opens dialog window to upload image
     Converts image to grayscale
-    Updates storage
+    Returns greyscale image and it's properties
     '''
     # read image
     img = cv2.imread(file_path)
@@ -57,35 +57,38 @@ def upload_img(file_path):
     
 
 def image_resize(image: np.ndarray, width = None, height = None, inter = cv2.INTER_AREA):
-        # initialize the dimensions of the image to be resized and
-        # grab the image size
-        dim = None
-        (h, w) = image.shape[:2]
+    '''
+    Resize image while keeping it's aspect ratio
+    '''
+    # initialize the dimensions of the image to be resized and
+    # grab the image size
+    dim = None
+    (h, w) = image.shape[:2]
 
-        # if both the width and height are None, then return the
-        # original image
-        if width is None and height is None:
-            return image
+    # if both the width and height are None, then return the
+    # original image
+    if width is None and height is None:
+        return image
 
-        # check to see if the width is None
-        if width is None:
-            # calculate the ratio of the height and construct the
-            # dimensions
-            r = height / float(h)
-            dim = (int(w * r), height)
+    # check to see if the width is None
+    if width is None:
+        # calculate the ratio of the height and construct the
+        # dimensions
+        r = height / float(h)
+        dim = (int(w * r), height)
 
-        # otherwise, the height is None
-        else:
-            # calculate the ratio of the width and construct the
-            # dimensions
-            r = width / float(w)
-            dim = (width, int(h * r))
+    # otherwise, the height is None
+    else:
+        # calculate the ratio of the width and construct the
+        # dimensions
+        r = width / float(w)
+        dim = (width, int(h * r))
 
-        # resize the image
-        resized = cv2.resize(image, dim, interpolation = inter)
+    # resize the image
+    resized = cv2.resize(image, dim, interpolation = inter)
 
-        # return the resized image
-        return resized
+    # return the resized image
+    return resized
 
 def scale_to_paper(image: np.ndarray[np.uint8], paper_size: list[int, int], mm_per_px: int):
     '''
@@ -110,7 +113,9 @@ def scale_to_paper(image: np.ndarray[np.uint8], paper_size: list[int, int], mm_p
     return image
     
 def isolate_color(greyscale_img: np.ndarray, color: list[int, int]):
-    
+    '''
+    Isolates color of certain luminosity
+    '''
     tmp_img = greyscale_img.copy()
     
     for i in range(len(tmp_img)):
@@ -126,8 +131,10 @@ def isolate_color(greyscale_img: np.ndarray, color: list[int, int]):
 
 def get_outline(img: np.ndarray, color_mode: str):
     '''
-    Creates outline of image
+    Creates outline of one color image
     color_mode [str]: 'black' or 'grey'
+    black goes from down to bottom
+    grey from left to right
     '''
         
     # Find contours
@@ -169,7 +176,9 @@ def encode_outline(outline: np.ndarray[np.uint8],
                          mm_per_px: int,
                          grey: bool = False):
     '''
-    Generates coordinates of black pixels
+    Generates coordinates of the outline pixels
+    'grey' mode transposes the matrix before encoding so the coordinates are 
+    rotated 90deg compared to 'black' mode
     '''
     
     if grey:
@@ -203,9 +212,9 @@ def encode_outline(outline: np.ndarray[np.uint8],
     # print(cords)
     return cords
 
-def process_image(storage):
-    pass
-
-def display_image(image, title):
+def display_image(image, title, img_size):
+    '''
+    Displays resized image so it's easier to see
+    '''
     # cv2.imshow(title, image)
-    cv2.imshow(title+' resized', image_resize(image, width=500))
+    cv2.imshow(title+' resized', image_resize(image, width=img_size))
