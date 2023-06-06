@@ -173,14 +173,14 @@ class App(ctk.CTk):
         
         self.pixel_spacing_entry = EntryWidget(current_frame, 
                                                title="Spacing between lines [mm]:",
-                                               default_values=(3,), 
+                                               default_values=(self.storage.mm_per_px,), 
                                                button=False)
         self.pixel_spacing_entry.pack(fill='x')
         self.__entry_widgets.append(self.pixel_spacing_entry)
         
         self.paper_size_entry = EntryWidget(current_frame, 
                                             title="Paper size [mm]:",
-                                            default_values=(380, 260), 
+                                            default_values=self.storage.paper_size, 
                                             button=False)
         self.paper_size_entry.pack(fill='x')
         self.__entry_widgets.append(self.paper_size_entry)
@@ -188,9 +188,6 @@ class App(ctk.CTk):
         # # Frame 0 1 - Rapid code names and properties
         current_frame = self.__frame_0_1
         
-        '''
-        TODO remove the hardcoded default valuesproc_name_entry
-        '''
         self.frame_0_1_tit = ctk.CTkLabel(current_frame, 
                                           text="RAPID code setup", 
                                           font=self.__my_font_1)
@@ -200,59 +197,59 @@ class App(ctk.CTk):
         # # Remove or modify this
         self.robot_name_entry = EntryWidget(current_frame, 
                                             title="Robot name:",
-                                            default_values=('SCARA',), 
+                                            default_values=(self.storage.robot_name,), 
                                             button=False)
         self.robot_name_entry.pack(fill='x')
         self.__entry_widgets.append(self.robot_name_entry)
         
         self.module_name_entry = EntryWidget(current_frame, 
                                              title="Module name:",
-                                             default_values=('Module1',),
+                                             default_values=(self.storage.module_name,),
                                              button=False)
         self.module_name_entry.pack(fill='x')
         self.__entry_widgets.append(self.module_name_entry)
         
         self.proc_name_entry = EntryWidget(current_frame, 
                                            title="Procedure name:", 
-                                           default_values=('Draw_image',), 
+                                           default_values=(self.storage.proc_name,), 
                                            button=False)
         self.proc_name_entry.pack(fill='x')
         self.__entry_widgets.append(self.proc_name_entry)
         
         self.origin_name_entry = EntryWidget(current_frame, 
                                              title="Origin point name:",
-                                             default_values=('Target_drawing_origin',), 
+                                             default_values=(self.storage.origin_name,), 
                                              button=False)
         self.origin_name_entry.pack(fill='x')
         self.__entry_widgets.append(self.origin_name_entry)
         
         self.origin_pos_entry = EntryWidget(current_frame, 
                                             title="Origin position [X, Y, Z]:", 
-                                            default_values=(290, 10, -2), 
+                                            default_values=self.storage.origin_pos, 
                                             button=False)
         self.origin_pos_entry.pack(fill='x')
         self.__entry_widgets.append(self.origin_pos_entry)
         
         self.tool_entry = EntryWidget(current_frame, 
                                       title="Tool name:",
-                                      default_values=('PencilHolder\WObj:=PAPER',), 
+                                      default_values=(self.storage.tool,), 
                                       button=False)
         self.tool_entry.pack(fill='x')
         self.__entry_widgets.append(self.tool_entry)
         
         self.speed_entry = EntryWidget(current_frame, 
                                        title="Speed [drawing, rapid]:", 
-                                       default_values=(100, 100), 
+                                       default_values=self.storage.speed, 
                                        button=False)
         self.speed_entry.pack(fill='x')
         self.__entry_widgets.append(self.speed_entry)
         
         
-        # # Frame 0 2 - Overview frame
+        # # Frame 0 2 - Magic buttons frame
         current_frame = self.__frame_0_2
         
         self.frame_0_2_tit = ctk.CTkLabel(current_frame, 
-                                          text="Buttons", 
+                                          text="Magic Buttons", 
                                           font=self.__my_font_1)
         self.frame_0_2_tit.pack(fill='x', 
                                 **self.__base_padding)
@@ -286,7 +283,7 @@ class App(ctk.CTk):
                                                                                   "Greyscale"))
         self.prev_greyscale_butt.pack(**self.__base_padding)
         
-        # Preview black and grey
+        # Preview black and grey buttons
         prev_buttons = {"Preview Black": lambda: self.display_img(self.storage.img_only_black, 
                                                                   "Black"), 
                         "Preview Grey": lambda: self.display_img(self.storage.img_only_grey, 
@@ -294,7 +291,7 @@ class App(ctk.CTk):
         self.preview_clrs = ButtonsWidget(current_frame, buttons=prev_buttons)
         self.preview_clrs.pack(**self.__base_padding, fill='x')
         
-        # Preview black and grey outlines
+        # Preview black and grey outlines buttons
         outline_buttons = {"Show Black Outline": lambda: self.display_img(self.storage.outline_black, 
                                                                           "Black Outline"), 
                            "Show Grey Outline": lambda: self.display_img(self.storage.outline_grey, 
@@ -309,11 +306,6 @@ class App(ctk.CTk):
                                          command=lambda: self.generate_rapid(),)
         self.save_butt.pack(**self.__base_padding)
         
-        
-        
-        
-    
-    
     
     # Private methods
     def __set_appearance_and_theme(self, appearance_mode='system', theme='blue'):
@@ -333,7 +325,6 @@ class App(ctk.CTk):
         '''
         Sets the number of rows and columns in the self or given frame.
         '''
-        # Self
         if frame == None:
             for i in range(rows):
                 self.rowconfigure(i, weight=1)
@@ -353,11 +344,6 @@ class App(ctk.CTk):
         """
         Updates values from entry widgets
         """
-        
-        # for i in self.__entry_widgets:
-        #     i.save_parameter()
-            
-        # print(self.storage.tool)
         self.storage.BLACK = [eval(i) for i in self.black_values_entry.return_parameters()]
         self.storage.GREY = [eval(i) for i in self.grey_values_entry.return_parameters()]
         self.storage.mm_per_px = int(self.pixel_spacing_entry.return_parameters())
@@ -370,11 +356,7 @@ class App(ctk.CTk):
         self.storage.origin_pos = [eval(i) for i in self.origin_pos_entry.return_parameters()]
         self.storage.tool = self.tool_entry.return_parameters()
         self.storage.speed = [eval(i) for i in self.speed_entry.return_parameters()]
-        
-        
-        
-        
-    
+         
     def upload_img(self):
         """
         Uploads image
@@ -382,14 +364,15 @@ class App(ctk.CTk):
         """
         
         # open dialog window
-        file_types = [('PNG files', '*.png'), ('JPG files', '*.jpg'), ('All files', '*')]
+        file_types = [('PNG files', '*.png'), ('JPG files', '*.jpg, *jpeg'), ('All files', '*')]
         file_path = filedialog.askopenfilename(title='Open a file', filetypes=file_types)
     
         # handle cancel button
         if file_path == '':
             return
         
-        self.storage.img_greyscale, self.storage.img_path, self.storage.img_shape[:3] = func.upload_img(file_path)
+        # Get greyscaled img and its properties
+        self.storage.img_greyscale, self.storage.img_path, self.storage.img_shape[:3] = func.upload_and_greyscale(file_path)
         
         # Change the 'img_path' label to the image size
         self.load_path_name_lab.configure(text=self.storage.img_path)
@@ -413,27 +396,28 @@ class App(ctk.CTk):
     def process_img(self):
         """
         Processes image
+        Generates black and grey masks and outlines of those masks
         """
         if not self.image_loaded:
             print("Image is not loaded!")
             return
         
+        # Update values from entries
         self.__update_values()
-        # func.process_img(self.storage)
         
-        #
-        # Generate black and grey images - DONE
-        # Generate black and grey outlines
+        # Scale img to fir paper size
         self.storage.img_greyscale = func.scale_to_paper(self.storage.img_greyscale,
                                                          self.storage.paper_size,
                                                          self.storage.mm_per_px)
         
+        # Generate black and grey masks
         self.storage.img_only_black = func.isolate_color(self.storage.img_greyscale,
                                                          self.storage.BLACK)
         
         self.storage.img_only_grey = func.isolate_color(self.storage.img_greyscale,
                                                         self.storage.GREY)
         
+        # Generate black and grey outlines
         self.storage.outline_black = func.get_outline(self.storage.img_only_black, "black")
         self.storage.outline_grey = func.get_outline(self.storage.img_only_grey, "grey")
         
@@ -444,24 +428,22 @@ class App(ctk.CTk):
     
     def generate_rapid(self):
         '''
-        Generates RAPID code
+        Encode outlines and then call RapidWriter class and generates the rapid code
         '''
-        # TODO
-        # Encode black and grey outlines
-        # Generate RAPID code
-        # create filedialog to save RAPID code
         if not self.image_processed:
             print("Image is not ready!")
             return
         
+        # update user values
         self.__update_values()
         
+        # Encode outlines
         self.storage.encoded_black = func.encode_outline(self.storage.outline_black,
                                                          self.storage.mm_per_px)
         self.storage.encoded_grey = func.encode_outline(self.storage.outline_grey,
                                                         self.storage.mm_per_px,
                                                         grey=True)
-        
+        # Create RapidWriter object
         rapid = rapid_export.RapidWriter(robot_name=self.storage.robot_name,
                                          module_name=self.storage.module_name,
                                          proc_name=self.storage.proc_name,
@@ -470,39 +452,28 @@ class App(ctk.CTk):
                                          tool=self.storage.tool,
                                          speed=self.storage.speed,
                                          encoded_black=self.storage.encoded_black,
-                                         encoded_grey=self.storage.encoded_grey)
+                                         encoded_grey=self.storage.encoded_grey,
+                                         mm_per_px=self.storage.mm_per_px)
+        # Create file dialog and write the code
         rapid.write_rapid()
                                             
-        
-            
-        
-        
-        
-       
     def display_img(self, image: np.ndarray, title: str):
         """
-        Displays image
+        Displays given image 
         """
         if not self.image_processed:
             print("Image is not ready!")
             return
         
-        func.display_image(image, title)
-        
-    def test_get_params(self):
-        for i in range(len(self.__entry_widgets)):
-           self.__entry_widgets[i].save_parameter()
-           print(self.__entry_widgets[i].variable)
-           
-    def test_print(self):
-        print("test")
-                
+        func.display_image(image, title, 500)
+               
 
 class EntryWidget(ctk.CTkFrame):
     '''
     Frame with two rows
     1st row: title
-    2nd row: number of entries depending on the size of the default value tuple/list, button to get/apply those entries
+    2nd row: number of entries depending on the size of the default value tuple/list, 
+             button to get/apply those entries
     '''
     def __init__(self, master: any, 
                  title: str,
@@ -602,22 +573,10 @@ class EntryWidget(ctk.CTkFrame):
             tmp_entries[i].grid(row=1, column=i, sticky='nsew', **self.__padding)
             
         return tmp_entries
-    
-    def get_values(self):
-        '''
-        Returns the values of the entries.
-        '''
-        
-        tmp_values = []
-        
-        for i in range(self.num_entries):
-            tmp_values.append(self.variables[i].get())
-            
-        return tmp_values
             
     def return_parameters(self):
         '''
-        Returns the parameter names and their values.
+        Returns list of values from all entries
         '''
         if self.num_entries == 1:
             return self.variables[0].get()
@@ -685,7 +644,7 @@ class ButtonsWidget(ctk.CTkFrame):
     
     def __set_buttons(self, buttons: dict[str, any]):
         '''
-        Sets the buttons.
+        Create buttons and places them in the frame.
         '''
         tmp_buttons = []
         
@@ -701,6 +660,4 @@ class ButtonsWidget(ctk.CTkFrame):
                    column=tmp_buttons.index(i),
                    **self.__padding)
             
-        return tmp_buttons
-        
-        
+        return tmp_buttons    
