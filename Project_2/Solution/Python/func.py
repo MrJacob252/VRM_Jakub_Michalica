@@ -45,7 +45,6 @@ def upload_and_greyscale(file_path):
     '''
     # read image
     img = cv2.imread(file_path)
-    
     # convert to grayscale
     img_greyscale = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     # save image path

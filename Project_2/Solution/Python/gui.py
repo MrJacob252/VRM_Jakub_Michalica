@@ -364,7 +364,7 @@ class App(ctk.CTk):
         """
         
         # open dialog window
-        file_types = [('PNG files', '*.png'), ('JPG files', '*.jpg'), ('All files', '*')]
+        file_types = [('PNG files', '*.png'), ('JPG files', '*.jpg, *jpeg'), ('All files', '*')]
         file_path = filedialog.askopenfilename(title='Open a file', filetypes=file_types)
     
         # handle cancel button

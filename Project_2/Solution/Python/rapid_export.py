@@ -75,7 +75,7 @@ class RapidWriter:
                 draw_black.append(self.movel((-(encoded_black[i][j] - 1), i * self.mm_per_px, self.pen_rise * pen_up), self.speed[0]))
                 draw_black.append(self.in_pos())
                 
-                # drawing on
+                # drawing off
                 if should_draw == 1:
                     draw_black.append(self.draw_on(0))
                     draw_black.append(self.draw_off(1))
@@ -85,7 +85,7 @@ class RapidWriter:
                 draw_black.append(self.movel((-(encoded_black[i][j] - 1), i * self.mm_per_px, self.pen_rise * pen_up), self.speed[0]))
                 draw_black.append(self.in_pos())
                 
-                # drawing off
+                # drawing on
                 if should_draw == 0:
                     draw_black.append(self.draw_on(1))
                     draw_black.append(self.draw_off(0))
@@ -126,7 +126,7 @@ class RapidWriter:
                 draw_grey.append(self.movel((-i * self.mm_per_px, (encoded_grey[i][j] - 1), self.pen_rise * pen_up), self.speed[0]))
                 draw_grey.append(self.in_pos())
                 
-                # drawing on
+                # drawing off
                 if should_draw == 1:
                     draw_grey.append(self.draw_on(0))
                     draw_grey.append(self.draw_off(1))
@@ -137,7 +137,7 @@ class RapidWriter:
                 draw_grey.append(self.movel((-i * self.mm_per_px, (encoded_grey[i][j] - 1), self.pen_rise * pen_up), self.speed[0]))
                 draw_grey.append(self.in_pos())
                 
-                # drawing off
+                # drawing on
                 if should_draw == 0:
                     draw_grey.append(self.draw_on(1))
                     draw_grey.append(self.draw_off(0))
